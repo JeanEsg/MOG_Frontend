@@ -12,30 +12,52 @@ const Home = () => {
     const { formulariosSeleccionados } = useUser();
 
     useEffect(() => {
-        const loadForms = async () => {
+        const loadForms = () => {
             try {
-                const response = await fetch("../../../Backend/Formularios.json");
-                if (!response.ok) throw new Error("No se pudo cargar el archivo.");
-                const data = await response.json();
+                // Intentar leer formularios guardados en localStorage (clave 'forms')
+                const raw = localStorage.getItem('forms');
+                const storedForms = raw ? JSON.parse(raw) : [];
 
-                // se crea una lista de formularios con su comedor asociado
-                const formTitles = formulariosSeleccionados.flatMap(entry =>
-                    entry.formularios.map(formSel => {
-                        const fullForm = data.find(f => f.id === formSel.id);
-                        return fullForm
-                            ? {
+                // Si el contexto tiene formularios agrupados por comedor (estructura antigua), usarlo
+                const isGrouped = Array.isArray(formulariosSeleccionados) && formulariosSeleccionados.length > 0 && formulariosSeleccionados[0].comedor;
+
+                let formTitles = [];
+
+                if (isGrouped) {
+                    formTitles = formulariosSeleccionados.flatMap(entry =>
+                        (entry.formularios || []).map(formSel => {
+                            const fullForm = storedForms.find(f => f.id === formSel.id) || {};
+                            const title = fullForm.name || fullForm.data?.title || fullForm.data?.name || formSel.name || 'Sin título';
+                            return {
                                 id: formSel.id,
-                                title: fullForm.title,
-                                comedorNombre: entry.comedor.nombre,
-                                comedorId: entry.comedor.id,
-                            }
-                            : null;
-                    }).filter(Boolean)
-                );
+                                title,
+                                comedorNombre: entry.comedor?.nombre || 'Comedor desconocido',
+                                comedorId: entry.comedor?.id || ''
+                            };
+                        })
+                    );
+                } else if (Array.isArray(storedForms) && storedForms.length > 0) {
+                    // Si hay formularios en localStorage, mostrarlos directamente
+                    formTitles = storedForms.map(f => ({
+                        id: f.id,
+                        title: f.name || f.data?.title || f.data?.name || 'Sin título',
+                        comedorNombre: 'Comedor desconocido',
+                        comedorId: ''
+                    }));
+                } else if (Array.isArray(formulariosSeleccionados) && formulariosSeleccionados.length > 0) {
+                    // Caso: el contexto contiene una lista plana de formularios
+                    formTitles = formulariosSeleccionados.map(f => ({
+                        id: f.id,
+                        title: f.name || f.data?.title || f.data?.name || 'Sin título',
+                        comedorNombre: 'Comedor desconocido',
+                        comedorId: ''
+                    }));
+                }
 
                 setForms(formTitles);
             } catch (err) {
-                setError("Error al cargar los formularios");
+                console.error('Error cargando formularios desde localStorage:', err);
+                setError('Error al cargar los formularios desde localStorage');
             } finally {
                 setLoading(false);
             }

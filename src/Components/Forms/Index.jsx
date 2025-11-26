@@ -15,12 +15,6 @@ const Form = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
     const [responses, setResponses] = useState({
-        "Nombre completo": "",
-        "Nacionalidad": "",
-        "Edad": "",
-        "Ciudad": "",
-        "Localidad": "",
-        "Estrato": ""
     });
 
 
@@ -44,7 +38,8 @@ const Form = () => {
                     setComedor(match.comedor);
                 }
             } catch (err) {
-                a
+                console.error(err);
+                setError("Error al cargar el comedor");
             }
         };
 
@@ -55,6 +50,38 @@ const Form = () => {
     useEffect(() => {
         const loadFormDetails = async () => {
             try {
+                // Intentar cargar el formulario desde localStorage (clave 'forms') primero
+                const storedFormsRaw = localStorage.getItem('forms');
+                if (storedFormsRaw) {
+                    try {
+                        const storedForms = JSON.parse(storedFormsRaw);
+                        const matched = storedForms.find(f => f.id === id || (f.data && (f.id === id || f.data.id === id)) || (f.formId === id));
+                        if (matched) {
+                            const fd = matched.data || matched;
+                            setFormDetails(fd);
+                            const initialResponses = (fd.fields || []).reduce((acc, field) => {
+                                if (field.type === "CHECKBOX") {
+                                    acc[field.id] = [];
+                                } else if (field.type === "GRID") {
+                                    // Inicializar una entrada por cada fila del grid
+                                    (field.rows || []).forEach(row => {
+                                        acc[`${field.id}-${row}`] = "";
+                                    });
+                                } else {
+                                    acc[field.id] = "";
+                                }
+                                return acc;
+                            }, {});
+                            setResponses(prev => ({ ...prev, ...initialResponses }));
+                            setLoading(false);
+                            return; // ya cargamos desde localStorage
+                        }
+                    } catch (parseErr) {
+                        console.error('Error parsing stored forms from localStorage:', parseErr);
+                        // seguir con la carga remota si falla el parse
+                    }
+                }
+
                 const response = await fetch("../../../Backend/Formularios.json");
                 if (!response.ok) throw new Error("No se pudo cargar el archivo JSON.");
 
@@ -66,10 +93,18 @@ const Form = () => {
                 setFormDetails(foundForm);
 
                 const initialResponses = foundForm.fields.reduce((acc, field) => {
-                    acc[field.id] = field.type === "CHECKBOX" ? [] : "";
+                    if (field.type === "CHECKBOX") {
+                        acc[field.id] = [];
+                    } else if (field.type === "GRID") {
+                        (field.rows || []).forEach(row => {
+                            acc[`${field.id}-${row}`] = "";
+                        });
+                    } else {
+                        acc[field.id] = "";
+                    }
                     return acc;
                 }, {});
-                setResponses(initialResponses);
+                setResponses(prev => ({ ...prev, ...initialResponses }));
             } catch (err) {
                 await showCustomAlert({
                     title: "Error al cargar el formulario",
@@ -118,10 +153,22 @@ const Form = () => {
         const preguntas = formDetails.fields.map((field, idx) => {
             const fieldKey = field.id || field.placeholder || `field-${idx}`;
             let respuesta = responses[fieldKey];
-            // Si es array (checkboxes, MULTIPLE_CHOICE), unir con coma y espacio
-            if (Array.isArray(respuesta)) {
-                respuesta = respuesta.join(", ");
+
+            if (field.type === "GRID") {
+                // Agregar respuestas por fila
+                const rowAnswers = (field.rows || []).map((row) => {
+                    const key = `${fieldKey}-${row}`;
+                    const val = responses[key] || "";
+                    return `${row}: ${val}`;
+                }).join(", ");
+                respuesta = rowAnswers;
+            } else {
+                // Si es array (checkboxes, MULTIPLE_CHOICE), unir con coma y espacio
+                if (Array.isArray(respuesta)) {
+                    respuesta = respuesta.join(", ");
+                }
             }
+
             return {
                 pregunta: field.title || fieldKey,
                 respuesta
@@ -143,8 +190,8 @@ const Form = () => {
             nombre: formDetails.title,
             Realizaciones: [
                 {
-                    id_encargado: user.nombreCompleto || colaborador,
-                    id_comedor: comedor._id || comedor.nombre,
+                    id_encargado: user?.nombreCompleto || "",
+                    id_comedor: (comedor && (comedor.id || comedor._id)) || comedor?.nombre || "",
                     encuestados: [nuevoEncuestado]
                 }
             ],

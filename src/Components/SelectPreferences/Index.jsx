@@ -166,20 +166,27 @@ const SelectPreferences = () => {
 
         setLoading(true);
 
-        // Guardar todos los formularios de todos los comedores
-        setFormulariosSeleccionados(() => {
-            return Object.entries(formulariosPorComedor).map(([comedorId, formularios]) => {
-                const comedor = comedoresDisponibles.find(c => c._id === comedorId);
-                return {
-                    comedor: {
-                        id: comedorId,
-                        nombre: comedor?.nombre || "",
-                        pais: comedor?.pais || ""
-                    },
-                    formularios: formularios
-                };
-            });
+        // Construir array de comedores y formularios en el formato esperado por `Form.jsx`
+        const seleccionadosArr = Object.entries(formulariosPorComedor).map(([comedorId, formularios]) => {
+            const comedor = comedoresDisponibles.find(c => c._id === comedorId);
+            return {
+                comedor: {
+                    id: comedorId,
+                    nombre: comedor?.nombre || "",
+                    pais: comedor?.pais || ""
+                },
+                // Guardamos solo la información mínima que `Form.jsx` necesita (id y name)
+                formularios: formularios.map(f => ({ id: f.id, name: f.name }))
+            };
         });
+
+        // Actualizar estado y localStorage con la estructura esperada
+        setFormulariosSeleccionados(seleccionadosArr);
+        try {
+            localStorage.setItem('formulariosSeleccionados', JSON.stringify(seleccionadosArr));
+        } catch (e) {
+            console.error('Error saving formulariosSeleccionados to localStorage:', e);
+        }
 
         try {
             // Obtener todos los formularios únicos de todos los comedores
@@ -198,8 +205,6 @@ const SelectPreferences = () => {
                     .then(data => {
                         console.log(`Datos recibidos para ${form.id}:`, data);
                         return {
-                            formId: form.id,
-                            formName: form.name,
                             data: data
                         };
                     })
@@ -242,8 +247,8 @@ const SelectPreferences = () => {
                 // Guardar en localStorage con la clave 'forms'
                 try {
                     localStorage.setItem('forms', JSON.stringify(uniqueForms));
-                    // También actualizar el estado global de formularios seleccionados para uso en la app
-                    setFormulariosSeleccionados(uniqueForms);
+                    // Mantener `formulariosSeleccionados` con la estructura por comedor (no sobreescribir)
+                    setFormulariosSeleccionados(seleccionadosArr);
                     console.log(`Saved ${uniqueForms.length} form(s) to localStorage key 'forms'`);
                 } catch (e) {
                     console.error('Error saving forms to localStorage:', e);
