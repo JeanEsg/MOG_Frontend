@@ -84,84 +84,100 @@ const History = () => {
                 return;
             }
 
-            const uploadResponse = await fetch('http://localhost:5000/migrate_surveys', {
+            const backendOrigin = 'http://localhost:5000'; // ajusta si tu backend corre en otro puerto
+            const uploadResponse = await fetch(`${backendOrigin}/migrate_and_export_individual`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
 
             const result = await uploadResponse.json();
 
-            if (uploadResponse.ok) {
-                // Construir URL absoluta de descarga si backend devuelve downloadUrl
-                let fullUrl = null;
-                if (result && result.downloadUrl) {
-                    const backendOrigin = 'http://localhost:5000';
-                    fullUrl = backendOrigin + result.downloadUrl;
-                    setDownloadUrl(fullUrl);
-                    setShowDownload(true);
-                }
-                // Mostrar alerta con opción de descargar
-                await showCustomAlert({
-                    title: "Datos migrados",
-                    text: `✅ ${result.message}\nTotal migradas: ${result.cantidad}`,
-                    icon: "success",
-                    confirmButtonText: fullUrl ? "Descargar Excel" : "Aceptar",
-                    showCancelButton: false,
-                    preConfirm: async () => {
-                        if (fullUrl) {
-                            try {
-                                const resp = await fetch(fullUrl);
-                                if (!resp.ok) throw new Error('Respuesta no OK al descargar');
-                                const blob = await resp.blob();
-                                const url = window.URL.createObjectURL(blob);
-                                const a = document.createElement('a');
-                                a.href = url;
-                                // Intentar obtener filename desde headers o usar el último segmento
-                                const disposition = resp.headers.get('content-disposition');
-                                let filename = '';
-                                if (disposition && disposition.indexOf('filename=') !== -1) {
-                                    filename = disposition.split('filename=')[1].split(';')[0].replace(/\"/g, '').trim();
-                                } else {
-                                    // Intentar obtener el nombre desde el query param 'file'
-                                    try {
-                                        const urlObj = new URL(fullUrl);
-                                        const qp = urlObj.searchParams.get('file');
-                                        filename = qp || fullUrl.split('/').pop().split('?')[0];
-                                    } catch (e) {
-                                        filename = fullUrl.split('/').pop().split('?')[0];
-                                    }
-                                }
-                                a.download = filename;
-                                document.body.appendChild(a);
-                                a.click();
-                                a.remove();
-                                window.URL.revokeObjectURL(url);
-                                // Mostrar alerta de confirmación que inició la descarga
-                                await showCustomAlert({ title: 'Descarga iniciada', text: `El archivo ${filename} se está descargando.`, icon: 'success', confirmButtonText: 'Aceptar' });
-                                navigate(`/home`);
-                            } catch (downloadErr) {
-                                console.error('Error en descarga:', downloadErr);
-                                await showCustomAlert({ title: 'Error', text: 'No se pudo descargar el archivo. Comprueba el backend o CORS.', icon: 'error', confirmButtonText: 'Aceptar' });
-                            }
-                        }
-                    }
-                });
-                // Limpiar localStorage (las respuestas ya están en BD)
-                localStorage.removeItem("respuestas");
-
-            } else {
+            if (!uploadResponse.ok) {
                 await showCustomAlert({
                     title: "Error",
-                    text: `❌ Error: ${result.error}`,
+                    text: `❌ Error: ${result.error || 'Error en el servidor'}`,
                     icon: "error",
                     confirmButtonText: "Aceptar"
                 });
+                return;
             }
-            // No navegamos inmediatamente: dejamos que el usuario descargue el archivo
-            // navigate(`/home`);
+
+            const files = result.files || []; // [{ nombre, file, url }, ...]
+            if (files.length === 0) {
+                await showCustomAlert({
+                    title: "Listo",
+                    text: `✅ ${result.message || 'Migración completada'} (0 archivos generados)`,
+                    icon: "success",
+                    confirmButtonText: "Aceptar"
+                });
+                localStorage.removeItem("respuestas");
+                return;
+            }
+
+            // Construir URLs absolutas
+            const filesWithUrl = files.map(f => ({
+                nombre: f.nombre,
+                file: f.file,
+                url: f.url.startsWith('http') ? f.url : (backendOrigin + f.url)
+            }));
+
+            // Preguntar al usuario si quiere descargar los archivos ahora
+            await showCustomAlert({
+                title: "Datos migrados",
+                text: `✅ Migradas: ${filesWithUrl.length} encuestas. ¿Deseas descargar los archivos ahora?`,
+                icon: "success",
+                confirmButtonText: "Descargar todos",
+                showCancelButton: true,
+                cancelButtonText: "Cerrar",
+                preConfirm: async () => {
+                    // Descargar secuencialmente cada archivo
+                    for (const f of filesWithUrl) {
+                        try {
+                            const resp = await fetch(f.url);
+                            if (!resp.ok) throw new Error(`Respuesta no OK: ${resp.status}`);
+                            const blob = await resp.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+
+                            // intentar obtener filename desde content-disposition, si existe
+                            const disposition = resp.headers.get('content-disposition');
+                            let filename = f.file || `${f.nombre || 'survey'}.xlsx`;
+                            if (disposition && disposition.indexOf('filename=') !== -1) {
+                                filename = disposition.split('filename=')[1].split(';')[0].replace(/\"/g, '').trim();
+                            } else {
+                                // fallback: usar el query param 'file' o el nombre devuelto por el backend
+                                try {
+                                    const urlObj = new URL(f.url);
+                                    const qp = urlObj.searchParams.get('file');
+                                    filename = qp || filename;
+                                } catch (e) { /* ignore */ }
+                            }
+
+                            a.download = filename;
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                            window.URL.revokeObjectURL(url);
+                            // pequeña pausa opcional para evitar sobrecarga
+                            await new Promise(r => setTimeout(r, 300));
+                        } catch (downloadErr) {
+                            console.error('Error descargando', f, downloadErr);
+                            await showCustomAlert({
+                                title: "Error en descarga",
+                                text: `No se pudo descargar ${f.file || f.nombre}. Comprueba el backend y CORS.`,
+                                icon: "error",
+                                confirmButtonText: "Aceptar"
+                            });
+                        }
+                    }
+                }
+            });
+
+            // Limpiar localStorage (ya migrado)
+            localStorage.removeItem("respuestas");
+
         } catch (error) {
             console.error('Error al cargar o enviar los datos:', error);
             await showCustomAlert({
@@ -198,8 +214,8 @@ const History = () => {
                                         <div>
                                             <h3>{form.nombre}</h3>
                                             <p><strong>Fecha:</strong> {new Date(encuestado.fechaRealizacion).toLocaleString()}</p>
-                                            <p><strong>Colaborador:</strong> {realizacion?.id_encargado || "No disponible"}</p>
-                                            <p><strong>Comedor:</strong> {realizacion?.id_comedor}</p>
+                                            <p><strong>Colaborador:</strong> {realizacion?.nombre_encargado || "No disponible"}</p>
+                                            <p><strong>Comedor:</strong> {realizacion?.nombre_comedor || realizacion?.id_comedor || "No disponible"}</p>
                                         </div>
                                         <button
                                             className={styles.viewButton}

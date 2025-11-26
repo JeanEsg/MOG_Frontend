@@ -192,7 +192,8 @@ const Form = () => {
                 {
                     id_encargado: user?.identificacion || "",
                     nombre_encargado: user?.nombreCompleto || "",
-                    id_comedor: (comedor && (comedor.id || comedor._id)) || comedor?.nombre || "",
+                    id_comedor: (comedor && (comedor.id || comedor._id)) || "",
+                    nombre_comedor: comedor?.nombre || "",
                     encuestados: [nuevoEncuestado]
                 }
             ],
