@@ -20,7 +20,7 @@ const Login = () => {
         let onlineFailed = false;
 
         try {
-            const response = await fetch("http://localhost:5000/login_manager", {
+            const response = await fetch("https://mog-sqj7.onrender.com/login_manager", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

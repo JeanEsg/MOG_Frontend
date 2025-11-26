@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000";
+const API_URL = "https://mog-sqj7.onrender.com";
 
 export const getEncargado = async (identificacion) => {
   const response = await fetch(
@@ -27,7 +27,7 @@ export const agregarCampos = async (datos) => {
 
 export const crearComedor = async (nombre, pais) => {
   try {
-    const response = await fetch("http://localhost:5000/post_comedor", {
+    const response = await fetch("https://mog-sqj7.onrender.com/post_comedor", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ nombre, pais }),
@@ -40,7 +40,9 @@ export const crearComedor = async (nombre, pais) => {
 
 export const listarComedores = async () => {
   try {
-    const response = await fetch("http://localhost:5000/find_comedores");
+    const response = await fetch(
+      "https://mog-sqj7.onrender.com/find_comedores",
+    );
     return response.json();
   } catch (error) {
     return { error: error.message };
@@ -50,7 +52,7 @@ export const listarComedores = async () => {
 export const listarComedoresPorIds = async (ids) => {
   try {
     const response = await fetch(
-      "http://localhost:5000/find_comedores_by_ids",
+      "https://mog-sqj7.onrender.com/find_comedores_by_ids",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -66,7 +68,7 @@ export const listarComedoresPorIds = async (ids) => {
 export const listarComedoresPorNombres = async (nombre) => {
   try {
     const response = await fetch(
-      "http://localhost:5000/find_comedores_by_name",
+      "https://mog-sqj7.onrender.com/find_comedores_by_name",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

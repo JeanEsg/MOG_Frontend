@@ -84,7 +84,7 @@ const History = () => {
                 return;
             }
 
-            const backendOrigin = 'http://localhost:5000'; // ajusta si tu backend corre en otro puerto
+            const backendOrigin = 'https://mog-sqj7.onrender.com'; // ajusta si tu backend corre en otro puerto
             const uploadResponse = await fetch(`${backendOrigin}/migrate_and_export_individual`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

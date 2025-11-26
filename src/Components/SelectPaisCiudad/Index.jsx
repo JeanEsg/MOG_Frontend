@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import styles from "./SelectPaisCiudad.module.css";
 
-const API_URL = "http://localhost:5000/pais";
+const API_URL = "https://mog-sqj7.onrender.com/pais";
 
 const SeleccionarPais = ({ pais = "", setPais }) => {
     const [paises, setPaises] = useState([]);

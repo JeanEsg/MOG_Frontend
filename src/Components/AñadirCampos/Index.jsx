@@ -20,7 +20,7 @@ const AñadirCampos = () => {
     useEffect(() => {
         const fetchUsuario = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/find_by_identification?identificacion=${id}`);
+                const response = await fetch(`https://mog-sqj7.onrender.com/find_by_identification?identificacion=${id}`);
                 if (!response.ok) {
                     if (response.status === 404) {
                         Swal.fire({
@@ -96,7 +96,7 @@ const AñadirCampos = () => {
         };
 
         try {
-            const res = await fetch('http://localhost:5000/add_fields', {
+            const res = await fetch('https://mog-sqj7.onrender.com/add_fields', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
