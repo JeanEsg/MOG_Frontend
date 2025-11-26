@@ -12,6 +12,7 @@ import AñadirCampos from "./Components/AñadirCampos/Index.jsx";
 import { UserProvider } from "./Context/userContext";
 import CrudEncargados from "./Components/Admin/CrudEncargados/Index";
 import CrudComedores from "./Components/Admin/CrudComedores/Index";
+import CrudPais from "./Components/SelectPaisCiudad/Crud-Pais/Index.jsx";
 
 
 const BlockBackNavigation = () => {
@@ -51,6 +52,7 @@ const App = () => {
                         <Route path="/form-history/:formIndex/:realizacionIndex/:encuestadoIndex" element={<HistoryForms />} />
                         <Route path="/crud-comedores" element={<CrudComedores />} />
                         <Route path="/crud-encargados" element={<CrudEncargados />} />
+                        <Route path="/crud-paises" element={<CrudPais />} />
                     </Route>
                 </Routes>
             </Router>

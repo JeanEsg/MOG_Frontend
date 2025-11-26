@@ -1,109 +1,126 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./SelectPaisCiudad.module.css";
 
-const SelectPaisCiudad = ({ datos = { nombre: "", pais: "" }, setDatos }) => {
+const API_URL = "http://localhost:5000/pais";
+
+const SeleccionarPais = ({ pais = "", setPais }) => {
     const [paises, setPaises] = useState([]);
-    const [codigoPais, setCodigoPais] = useState("");
-    const [ciudades, setCiudades] = useState([]);
+    const [paisSeleccionado, setPaisSeleccionado] = useState("");
+    const [nuevoPais, setNuevoPais] = useState("");
+    const [cargando, setCargando] = useState(false);
 
-    // Cargar países
-    useEffect(() => {
-        const fetchPaises = async () => {
-            try {
-                const res = await fetch("https://countriesnow.space/api/v0.1/countries/iso");
-                const json = await res.json();
+    // ============================
+    // 1. Cargar países (GET)
+    // ============================
+    const cargarPaises = async () => {
+        try {
+            const res = await fetch(API_URL);
 
-                if (json.error || !Array.isArray(json.data)) {
-                    throw new Error("Error en formato de países");
-                }
-
-                const ordenados = json.data
-                    .map((pais) => ({
-                        nombre: pais.name,
-                        codigo: pais.Iso2,
-                    }))
-                    .sort((a, b) => a.nombre.localeCompare(b.nombre));
-
-                setPaises(ordenados);
-            } catch (err) {
-                console.error("Error al cargar países:", err);
+            if (!res.ok) {
+                const text = await res.text();
+                console.error("Error cargando países, respuesta del servidor:", res.status, text);
+                throw new Error(`Error ${res.status} al obtener países`);
             }
-        };
 
-        fetchPaises();
+            const json = await res.json();
+
+            if (!Array.isArray(json)) throw new Error("Formato incorrecto");
+
+            const ordenados = json.sort((a, b) => a.nombre.localeCompare(b.nombre));
+            setPaises(ordenados);
+        } catch (err) {
+            console.error("Error al cargar países:", err);
+        }
+    };
+
+
+
+    useEffect(() => {
+        cargarPaises();
     }, []);
 
-    // Cargar ciudades al cambiar país
-    useEffect(() => {
-        const fetchCiudades = async () => {
-            if (!datos.pais) return;
+    // ============================
+    // 2. Seleccionar país
+    // ============================
+    const handleChange = (e) => {
+        const idPais = e.target.value;
+        const seleccionado = paises.find(p => String(p.id) === String(idPais));
 
+        setPaisSeleccionado(idPais);
+        setPais(seleccionado?.nombre || "");
+    };
+
+    // ============================
+    // 3. Crear nuevo país (POST)
+    // ============================
+    const agregarPais = async () => {
+        if (nuevoPais.trim() === "") return alert("Ingrese un nombre de país");
+
+        setCargando(true);
+
+        try {
+            const res = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ nombre: nuevoPais })
+            });
+
+            // Read text first to allow logging non-JSON responses (HTML error pages)
+            const text = await res.text();
+
+            let creado = {};
             try {
-                const res = await fetch("https://countriesnow.space/api/v0.1/countries/cities", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ country: datos.pais }),
-                });
-
-                const json = await res.json();
-                if (json.error || !Array.isArray(json.data)) {
-                    throw new Error("Error en formato de ciudades");
-                }
-
-                const ciudadesOrdenadas = json.data.sort((a, b) => a.localeCompare(b));
-
-                setCiudades(ciudadesOrdenadas);
-            } catch (err) {
-                console.error("Error al cargar ciudades:", err);
-                setCiudades([]);
+                creado = text ? JSON.parse(text) : {};
+            } catch (parseErr) {
+                console.error("Respuesta no JSON al crear país:", text);
+                alert("Error del servidor: respuesta inválida (no JSON). Revisa la consola para más detalles.");
+                return;
             }
-        };
 
-        fetchCiudades();
-    }, [datos.pais]);
+            if (!res.ok) {
+                const message = creado?.error || creado?.message || `Error ${res.status}`;
+                alert("Error: " + message);
+                return;
+            }
+
+            // Limpiar campo
+            setNuevoPais("");
+
+            // Recargar lista
+            await cargarPaises();
+
+            // Seleccionar el recién creado
+            setPaisSeleccionado(creado.id);
+            setPais(creado.nombre);
+
+        } catch (err) {
+            console.error("Error al agregar país:", err);
+        } finally {
+            setCargando(false);
+        }
+    };
 
     return (
-        <>
-            <div className={styles.formGroup}>
-                <label className={styles.label}>País:</label>
-                <select
-                    className={styles.input}
-                    value={codigoPais}
-                    onChange={(e) => {
-                        const nuevoPais = e.target.value;
-                        const nombre = paises.find(p => p.codigo === nuevoPais)?.nombre || "";
-                        setCodigoPais(nuevoPais);
-                        setDatos({ ...datos, pais: nombre, nombre: "" });
-                        setCiudades([]);
-                    }}
-                >
-                    <option value="">Selecciona un país</option>
-                    {paises.map((pais, i) => (
-                        <option key={pais.codigo || `pais-${i}`} value={pais.codigo}>
-                            {pais.nombre}
-                        </option>
-                    ))}
-                </select>
-            </div>
+        <div className={styles.formGroup}>
 
-            <div className={styles.formGroup}>
-                <label className={styles.label}>Ciudad:</label>
-                <select
-                    className={styles.input}
-                    value={datos.nombre}
-                    onChange={(e) => setDatos({ ...datos, nombre: e.target.value })}
-                    disabled={!ciudades.length}
-                >
-                    <option value="">Selecciona una ciudad</option>
-                    {ciudades.map((ciudad, index) => (
-                        <option key={`${ciudad}-${index}`} value={ciudad}>
-                            {ciudad}
-                        </option>
-                    ))}
-                </select>
-            </div>
-        </>
+            {/* Select de países */}
+            <label className={styles.label}>País:</label>
+            <select
+                className={styles.input}
+                value={paisSeleccionado}
+                onChange={handleChange}
+            >
+                <option value="">Selecciona un país</option>
+                {paises.map(p => (
+                    <option key={p.id} value={p.id}>
+                        {p.nombre}
+                    </option>
+                ))}
+            </select>
+        </div>
     );
 };
 
-export default SelectPaisCiudad;
+export default SeleccionarPais;

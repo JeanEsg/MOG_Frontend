@@ -6,16 +6,18 @@ import {
     listarComedoresPorNombres
 } from "../Services";
 import Header from "../../Header/Index";
-import SelectPaisCiudad from "../../SelectPaisCiudad/Index";
+import SeleccionarPais from "../../SelectPaisCiudad/Index";
 import styles from "./CrudComedores.module.css";
+import { useNavigate } from "react-router-dom";
 
 const CrudComedores = () => {
-    const [datosCrear, setDatosCrear] = useState({ nombre: "", pais: "" });
     const [nombre, setNombre] = useState("");
+    const [pais, setPais] = useState("");
     const [resultado, setResultado] = useState(null);
+    const navigate = useNavigate();
 
     const manejarCrearComedor = async () => {
-        if (!datosCrear.nombre || !datosCrear.pais) {
+        if (!nombre || !pais) {
             await Swal.fire({
                 icon: "warning",
                 title: "Complete los campos",
@@ -24,7 +26,8 @@ const CrudComedores = () => {
             });
             return;
         }
-        const res = await crearComedor(datosCrear);
+        console.log("Creando comedor con nombre:", nombre, "y país:", pais);
+        const res = await crearComedor(nombre, pais);
         setResultado(res);
     };
 
@@ -80,14 +83,14 @@ const CrudComedores = () => {
 
                 {/* Selector modular de país y ciudad */}
                 <div className={styles.formGroup}>
-                    <SelectPaisCiudad datos={datosCrear} setDatos={setDatosCrear} />
+                    <SeleccionarPais pais={pais} setPais={setPais} />
 
                 </div>
 
                 {/* Buscar por IDs */}
                 <div className={styles.formGroup}>
                     <label className={styles.label}>
-                        Buscar Comedores por IDs (separados por coma):
+                        Buscar Comedores:
                     </label>
                     <input
                         className={styles.input}
@@ -108,6 +111,12 @@ const CrudComedores = () => {
                     </button>
                     <button className={styles.button} onClick={manejarListarPorIds}>
                         Buscar por Nombre
+                    </button>
+                    <button
+                        className={styles.button}
+                        onClick={() => navigate("/crud-paises")}
+                    >
+                        Gestionar Países
                     </button>
                 </div>
 

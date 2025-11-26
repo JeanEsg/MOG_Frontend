@@ -26,3 +26,25 @@
   border: 2px solid #93c5fd;
   background-color: #fff;
 }
+
+.button {
+  background-color: #2563eb;
+  color: #ffffff;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s ease;
+}
+
+.button:hover {
+  background-color: #1e40af;
+}
+
+.button:active {
+  transform: scale(0.97);
+}

@@ -7,7 +7,7 @@ import {
     listarComedoresPorNombres
 } from "../Services";
 import Header from "../../Header/Index";
-import SeleccionarPais from "../../SelectPaisCiudad/SeleccionarPais/Index";
+import SeleccionarPais from "../../SelectPaisCiudad/Index";
 import styles from "./CrudEncargados.module.css";
 
 const CrudEncargados = () => {

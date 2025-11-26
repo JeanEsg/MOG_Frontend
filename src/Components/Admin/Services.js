@@ -25,12 +25,12 @@ export const agregarCampos = async (datos) => {
   return response.json();
 };
 
-export const crearComedor = async (datos) => {
+export const crearComedor = async (nombre, pais) => {
   try {
     const response = await fetch("http://localhost:5000/post_comedor", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(datos),
+      body: JSON.stringify({ nombre, pais }),
     });
     return response.json();
   } catch (error) {
