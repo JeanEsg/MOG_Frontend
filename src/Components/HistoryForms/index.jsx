@@ -72,7 +72,7 @@ const HistoryForms = () => {
                 <div className={styles.container}>
                     <h1 className={styles.title}>Formulario: {form.nombre}</h1>
                     <div className={styles.infoBox}>
-                        <p><strong>COLABORADOR:</strong> {realizacion.id_encargado}</p>
+                        <p><strong>COLABORADOR:</strong> {realizacion.nombre_encargado}</p>
                         <p><strong>COMEDOR:</strong> {realizacion.id_comedor}</p>
                     </div>
 
