@@ -190,7 +190,8 @@ const Form = () => {
             nombre: formDetails.title,
             Realizaciones: [
                 {
-                    id_encargado: user?.nombreCompleto || "",
+                    id_encargado: user?.identificacion || "",
+                    nombre_encargado: user?.nombreCompleto || "",
                     id_comedor: (comedor && (comedor.id || comedor._id)) || comedor?.nombre || "",
                     encuestados: [nuevoEncuestado]
                 }
