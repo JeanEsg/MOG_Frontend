@@ -193,7 +193,7 @@ const SelectPreferences = () => {
             const todosLosFormularios = Object.values(formulariosPorComedor).flat();
 
             // Crear un array de promesas, una por cada formulario individual
-            const fetchPromises = todosLosFormularios.map((form) => {
+                const fetchPromises = todosLosFormularios.map((form) => {
                 console.log(`Obteniendo formulario con id: ${form.id}`);
                 return fetch(`http://localhost:5000/get_Form?id=${encodeURIComponent(form.id)}`)
                     .then(res => {
@@ -205,6 +205,8 @@ const SelectPreferences = () => {
                     .then(data => {
                         console.log(`Datos recibidos para ${form.id}:`, data);
                         return {
+                            formId: form.id,
+                            formName: form.name,
                             data: data
                         };
                     })
