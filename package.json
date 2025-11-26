@@ -8,8 +8,6 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "nodemon backend/server.js",
     "client": "npm run dev"
   },
   "dependencies": {

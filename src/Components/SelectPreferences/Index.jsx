@@ -128,7 +128,7 @@ const SelectPreferences = () => {
         const cargarComedores = async () => {
             if (user?.comedores?.length > 0) {
                 try {
-                    const response = await fetch("http://localhost:5000/find_comedores_by_ids", {
+                    const response = await fetch("https://mog-sqj7.onrender.com/find_comedores_by_ids", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ ids: user.comedores }),
@@ -193,9 +193,9 @@ const SelectPreferences = () => {
             const todosLosFormularios = Object.values(formulariosPorComedor).flat();
 
             // Crear un array de promesas, una por cada formulario individual
-                const fetchPromises = todosLosFormularios.map((form) => {
+            const fetchPromises = todosLosFormularios.map((form) => {
                 console.log(`Obteniendo formulario con id: ${form.id}`);
-                return fetch(`http://localhost:5000/get_Form?id=${encodeURIComponent(form.id)}`)
+                return fetch(`https://mog-sqj7.onrender.com/get_Form?id=${encodeURIComponent(form.id)}`)
                     .then(res => {
                         if (!res.ok) {
                             throw new Error(`Error al obtener formulario ${form.id}: ${res.status}`);

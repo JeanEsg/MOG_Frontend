@@ -3,7 +3,7 @@ import styles from "./Crud-pais.module.css";
 import Header from "../../Header/Index";
 import Swal from "sweetalert2";
 
-const API_URL = "http://localhost:5000/pais";
+const API_URL = "https://mog-sqj7.onrender.com/pais";
 
 const CrudPais = () => {
     const [paises, setPaises] = useState([]);

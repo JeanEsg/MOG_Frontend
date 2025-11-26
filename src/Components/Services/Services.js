@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const backend = "http://localhost:5000";
+const backend = "https://mog-sqj7.onrender.com";
 
 // Obtener todos los formularios
 export const getAll = async () => {
