@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import styles from "./Crud-pais.module.css";
+import styles from "./Crud-Pais.module.css";
 import Header from "../../Header/Index";
 import Swal from "sweetalert2";
 
