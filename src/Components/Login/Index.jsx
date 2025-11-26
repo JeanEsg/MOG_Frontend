@@ -73,9 +73,9 @@ const Login = () => {
             console.warn("🛑 No se pudo conectar al servidor. Intentando login offline...");
 
         }
-        console.log(`✅ Solo llegas aquí si falló la conexión (modo offline)`)
+        console.log(`✅ Solo llegas aquí si falló la conexión (modo offline)`, onlineFailed)
         // ✅ Solo llegas aquí si falló la conexión (modo offline)
-        if (onlineFailed) {
+        if (!onlineFailed) {
             const savedUser = localStorage.getItem("user");
 
             if (savedUser) {
@@ -92,7 +92,20 @@ const Login = () => {
                     return;
                 }
 
-                const passwordOk = await bcrypt.compare(contraseña, parsedUser.contraseña);
+                // try common keys where a stored password/hash may be found
+                const storedHash = parsedUser.contraseña ?? parsedUser.password ?? parsedUser.passwordHash ?? parsedUser.hash;
+
+                if (!storedHash) {
+                    await showCustomAlert({
+                        title: "Contraseña no guardada",
+                        text: "No se encontró una contraseña guardada para este usuario (modo offline).",
+                        icon: "warning",
+                        confirmButtonText: "Aceptar"
+                    });
+                    return;
+                }
+
+                const passwordOk = await bcrypt.compare(contraseña, storedHash);
 
                 if (passwordOk) {
                     setUser(parsedUser);
