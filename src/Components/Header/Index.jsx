@@ -20,6 +20,8 @@ function Header() {
     const navigate = useNavigate();
     const isHome = location.pathname === "/home";
     const isntHome = !isHome;
+    const isDashboard = location.pathname === "/dashboard";
+    const isntDashboard = !isDashboard;
     const isComedoresCrud = location.pathname === "/crud-comedores";
     const isEncargadosCrud = location.pathname === "/crud-encargados";
     const isntComedoresCrud = !isComedoresCrud;
@@ -33,6 +35,7 @@ function Header() {
 
     const handleBack = () => navigate(-1);
     const handleHome = () => navigate("/home");
+    const handleDashboard = () => navigate("/dashboard");
     const handleHistory = () => navigate("/history");
     const handleSettings = () => navigate("/settings");
 
@@ -104,10 +107,16 @@ function Header() {
             <nav className={styles.navbar}>
                 {isHome && (
                     <>
+                        <Button onClick={handleDashboard}>Dashboard</Button>
                         <Button onClick={handleHistory}>Historial</Button>
                     </>
                 )}
-                {isntHome && (
+                {isntHome && isntDashboard && (
+                    <>
+                        <Button onClick={handleHome}>Home</Button>
+                    </>
+                )}
+                {isDashboard && (
                     <>
                         <Button onClick={handleHome}>Home</Button>
                     </>

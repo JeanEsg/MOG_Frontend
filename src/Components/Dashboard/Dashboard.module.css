@@ -1,0 +1,407 @@
+.dashboard {
+  min-height: 100vh;
+  background: transparent;
+  padding: 2rem;
+}
+
+.dashboardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: white;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.filterContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.filterLabel {
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.filterSelect {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 2px solid #1d4ed8;
+  background-color: white;
+  color: #1e293b;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.filterSelect:hover {
+  background-color: #f1f5f9;
+  border-color: #2563eb;
+}
+
+.filterSelect:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.loadingText {
+  font-size: 1.5rem;
+  color: white;
+  font-weight: 600;
+}
+
+.metricsContainer {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Comedor Header */
+.comedorHeader {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.comedorTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: white;
+  text-transform: uppercase;
+  margin: 0;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+  border-radius: 1rem;
+  backdrop-filter: blur(10px);
+}
+
+.preguntaSubtitle {
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0.75rem 0 0 0;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+/* Cards Grid */
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.metricCard {
+  background-color: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metricCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.cardIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cardComedores .cardIcon {
+  background-color: #10b981;
+}
+
+.cardEncargados .cardIcon {
+  background-color: #1e3a8a;
+}
+
+.cardBeneficiarios .cardIcon {
+  background-color: #dc2626;
+}
+
+.cardEncuestas .cardIcon {
+  background-color: #7c3aed;
+}
+
+.icon {
+  width: 36px;
+  height: 36px;
+  color: white;
+}
+
+.cardContent {
+  flex: 1;
+}
+
+.cardLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 0.25rem 0;
+}
+
+.cardValue {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin: 0;
+  line-height: 1;
+}
+
+/* Charts Grid */
+.chartsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 1.5rem;
+}
+
+.chartCard {
+  background-color: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.chartCardFull {
+  grid-column: 1 / -1;
+}
+
+.chartTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 1.5rem 0;
+}
+
+/* Bar Chart */
+.barChart {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.barItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.barLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.barWrapper {
+  width: 100%;
+  height: 40px;
+  background-color: #f1f5f9;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.barFill {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 0.75rem;
+  transition: width 0.8s ease;
+  position: relative;
+}
+
+.barFillGreen {
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+}
+
+.barFillBlue {
+  background: linear-gradient(90deg, #1e3a8a 0%, #1e40af 100%);
+}
+
+.barFillPurple {
+  background: linear-gradient(90deg, #7c3aed 0%, #6d28d9 100%);
+}
+
+.barValue {
+  color: white;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.noData {
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  padding: 2rem 0;
+}
+
+/* Beneficiaries Container */
+.beneficiariesContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.pieChartContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.pieChart {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+}
+
+.detailContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.detailTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.detailList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.detailItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: #f8fafc;
+  border-radius: 0.5rem;
+  border-left: 4px solid;
+}
+
+.detailItem:nth-child(1) {
+  border-left-color: #10b981;
+}
+
+.detailItem:nth-child(2) {
+  border-left-color: #3b82f6;
+}
+
+.detailItem:nth-child(3) {
+  border-left-color: #6366f1;
+}
+
+.detailItem:nth-child(4) {
+  border-left-color: #8b5cf6;
+}
+
+.detailItem:nth-child(5) {
+  border-left-color: #ec4899;
+}
+
+.detailRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.detailColor {
+  width: 16px;
+  height: 16px;
+  border-radius: 0.25rem;
+  flex-shrink: 0;
+}
+
+.detailLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+}
+
+.detailValue {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .chartsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .beneficiariesContainer {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard {
+    padding: 1rem;
+  }
+
+  .dashboardHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .cardsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .chartsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .chartCard {
+    padding: 1.5rem;
+  }
+
+  .cardValue {
+    font-size: 2rem;
+  }
+}

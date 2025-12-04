@@ -13,6 +13,7 @@ import { UserProvider } from "./Context/userContext";
 import CrudEncargados from "./Components/Admin/CrudEncargados/Index";
 import CrudComedores from "./Components/Admin/CrudComedores/Index";
 import CrudPais from "./Components/SelectPaisCiudad/Crud-Pais/Index.jsx";
+import Dashboard from "./Components/Dashboard/Index";
 
 
 const BlockBackNavigation = () => {
@@ -47,6 +48,7 @@ const App = () => {
                     <Route element={<ProtectedRoute />}>
                         <Route path="/settings" element={<SelectPreferences />} />
                         <Route path="/home" element={<Home />} />
+                        <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/form/:id" element={<Form />} />
                         <Route path="/history" element={<History />} />
                         <Route path="/form-history/:formIndex/:realizacionIndex/:encuestadoIndex" element={<HistoryForms />} />
